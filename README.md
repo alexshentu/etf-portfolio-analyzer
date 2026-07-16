@@ -19,3 +19,12 @@ A python project for analyzing ETF profolios using financial data
 ## Status 
 
 -In development
+
+## Version 1 Goals
+
+- [ ] Download ETF historical data
+- [ ] Plot ETF price chart
+- [ ] Calculate total return
+- [ ] Calculate annual return
+- [ ] Calculate volatility
+- [ ] Generate portfolio summary
