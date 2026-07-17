@@ -1,13 +1,11 @@
 import yfinance as yf
 
-print ("Hello ETF Portfolio Analyzer")
-
 ticker = "VOO"
 data = yf.download(ticker, period="1y")
-close_data = data["Close"]
-print(close_data.iloc[0])
-print(type(data))
-print(type(close_data))
+close_data = data["Close"][ticker]
+daily_return = close_data.pct_change()
 
-daily_return = close_data.pct_change(1)
-print(daily_return.mean())
+best_day = daily_return.idxmax()
+best_return = daily_return.max()
+print (f"Best Day: {best_day}")
+print (f"Return: {best_return:.2%}")
