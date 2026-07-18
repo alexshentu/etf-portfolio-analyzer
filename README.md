@@ -1,30 +1,48 @@
-# etf-profolio-analyzer
-A python project for analyzing ETF profolios using financial data
+# ETF Portfolio Analyzer
+
+A Python project that analyzes ETF performance using historical market data and visualizes key technical indicators.
+
+## Overview
+This project downloads historical ETF price data, calculates key performance, and technical analysis metrics. Including daily returns, annual volatility, maximum drawdown, moving averages, and Golden/Death Cross signals. The results are displayed both as summary statistics and a visualization.
 
 ## Features
 
--Download ETF historical data
--Calculate daily and annual return
--Calculate portfolio volatility
--Visualize ETF performance
+- Download historical ETF data using yfinance
+- Calculate daily return
+- Calculate annual volatility
+- Calculate maximum drawdown (MDD)
+- Compute 20-day and 50-day moving averages
+- Detect Golden Cross and Death Cross
+- Visualize price trends and technical indicators
+
+## Example
+![Portfolio Analysis](images/portfolio-analysis.png)
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+```bash
+python src/main.py
+```
 
 ## Technologies 
 
--Python
--Pandas
--Matplotlib
--Git
--Github
+- Python
+- Pandas
+- Matplotlib
+- yfinance
+- Git
+- GitHub
 
-## Status 
+## Future Improvements
 
--In development
-
-## Version 1 Goals
-
-- [ ] Download ETF historical data
-- [ ] Plot ETF price chart
-- [ ] Calculate total return
-- [ ] Calculate annual return
-- [ ] Calculate volatility
-- [ ] Generate portfolio summary
+- Support multiple ETF tickers
+- Compare multiple ETFs
+- Calculate Sharpe Ratio
+- Generate PDF reports
+- Add a graphical user interface (GUI)
