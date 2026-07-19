@@ -2,53 +2,71 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 
 #download info 
-ticker = "VOO"
-data = yf.download(ticker, period="1y")
-close_data = data["Close"][ticker]
-daily_return = close_data.pct_change()
+def download_data(ticker):
+    data = yf.download(ticker, period="1y")
+    close_data = data["Close"][ticker]
+    daily_return = close_data.pct_change()
+    return close_data, daily_return
 
-#best/worst day
-best_day = daily_return.idxmax()
-best_return = daily_return.max()
+ticker = input("Enter ETF ticker: ").upper()
+close_data, daily_return = download_data(ticker)
 
-worst_day = daily_return.idxmin()
-worst_return = daily_return.min()
+def calculate_metrics(close_data, daily_return):
+    metrics = {}
 
-#volatility 
-daily_volatility = daily_return.std()
-annual_volatility = daily_volatility * (252 ** 0.5)
+    #best/worst day
+    best_day = daily_return.idxmax()
+    best_return = daily_return.max()
 
-#total return 
-growth_factor = daily_return + 1
-total_return = growth_factor.cumprod().iloc[-1] - 1
+    metrics ["best_day"] = best_day.date()
+    metrics ["best_return"] = best_return
 
-#maximum drawdown 
-historical_high = close_data.cummax()
-daily_drawdown = (close_data - historical_high) / historical_high
-maximum_drawdown = daily_drawdown.min()
-MDD_day = daily_drawdown.idxmin()
+    worst_day = daily_return.idxmin()
+    worst_return = daily_return.min()
 
-#moving average
-moving_average_20 = close_data.rolling(20).mean()
-moving_average_50 = close_data.rolling(50).mean()
+    metrics["worst_day"] = worst_day.date()
+    metrics["worst_return"] = worst_return
 
-#data output
-print (f"Best Day: {best_day}")
-print (f"Best Return: {best_return:.2%}")
-print()
-print (f"Worst Day: {worst_day}")
-print (f"Worst Return: {worst_return:.2%}")
-print()
-print (f"Daily Volatility: {daily_volatility:.2%}")
-print (f"Annual Volatility: {annual_volatility:.2%}")
-print()
-print (f"Total Return: {total_return:.2%}")
-print()
-print (f"Maximum Drawdown Day: {MDD_day}")
-print(f"Maximum Drawdown: {maximum_drawdown:.2%}")
-print()
-print(f"20-Day Moving Average: {moving_average_20.iloc[-1]:.2f}")
-print(f"50-Day Moving Average: {moving_average_50.iloc[-1]:.2f}")
+    #volatility 
+    daily_volatility = daily_return.std()
+    annual_volatility = daily_volatility * (252 ** 0.5)
+
+    metrics["daily_volatility"] = daily_volatility
+    metrics["annual_volatility"] = annual_volatility
+
+    #total return 
+    growth_factor = daily_return + 1
+    total_return = growth_factor.cumprod().iloc[-1] - 1
+
+    metrics["total_return"] = total_return
+
+    #maximum drawdown 
+    historical_high = close_data.cummax()
+    daily_drawdown = (close_data - historical_high) / historical_high
+    maximum_drawdown = daily_drawdown.min()
+    MDD_day = daily_drawdown.idxmin()
+
+    metrics["maximum_drawdown_day"] = MDD_day.date()
+    metrics["maximum_drawdown"] = maximum_drawdown
+
+    #moving average
+    moving_average_20 = close_data.rolling(20).mean()
+    moving_average_50 = close_data.rolling(50).mean()
+
+    metrics["20_day_moving_average"] = moving_average_20.iloc[-1]
+    metrics["50_day_moving_average"] = moving_average_50.iloc[-1]
+
+    return metrics, moving_average_20, moving_average_50, daily_drawdown
+
+def print_metrics(metrics):
+    for key, value in metrics.items():
+
+        if "return" in key or "volatility" in key or "drawdown" in key:
+            print(f"{key.replace('_', ' ').title()}: {value:.2%}")
+
+        else:
+            print(f"{key.replace('_', ' ').title()}: {value}")
+
 
 #plot
 close_data.plot(label = "Close Price", 
