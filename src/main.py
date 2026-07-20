@@ -60,10 +60,10 @@ def calculate_metrics(close_data, daily_return):
 
 def print_metrics(metrics):
     for key, value in metrics.items():
-
-        if "return" in key or "volatility" in key or "drawdown" in key:
+        if "day" in key:
+            print(f"{key.replace('_', ' ').title()}: {value}")
+        elif "return" in key or "volatility" in key or "drawdown" in key:
             print(f"{key.replace('_', ' ').title()}: {value:.2%}")
-
         else:
             print(f"{key.replace('_', ' ').title()}: {value}")
 
