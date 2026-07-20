@@ -8,8 +8,7 @@ def download_data(ticker):
     daily_return = close_data.pct_change()
     return close_data, daily_return
 
-ticker = input("Enter ETF ticker: ").upper()
-close_data, daily_return = download_data(ticker)
+
 
 def calculate_metrics(close_data, daily_return):
     metrics = {}
@@ -57,6 +56,7 @@ def calculate_metrics(close_data, daily_return):
     metrics["50_day_moving_average"] = moving_average_50.iloc[-1]
 
     return metrics, moving_average_20, moving_average_50, daily_drawdown
+    # Returned for future drawdown visualization
 
 def print_metrics(metrics):
     for key, value in metrics.items():
@@ -67,50 +67,61 @@ def print_metrics(metrics):
         else:
             print(f"{key.replace('_', ' ').title()}: {value}")
 
-
-#plot
-close_data.plot(label = "Close Price", 
+def plot_chart(close_data, moving_average_20, moving_average_50, ticker):
+    #plot
+    close_data.plot(label = "Close Price", 
                 color = "black", 
                 linewidth = 2)
 
-moving_average_20.plot(label = "20-Day MA", 
+    moving_average_20.plot(label = "20-Day MA", 
                        color = "blue", 
                        linewidth = 1.5, 
                        linestyle = "--")
 
-moving_average_50.plot(label = "50-Day MA", 
+    moving_average_50.plot(label = "50-Day MA", 
                        color = "red", 
                        linewidth = 1.5, 
                        linestyle = "--")
+    #golden cross
 
-#golden cross
-golden_cross = (
-    (moving_average_20 > moving_average_50)
+    golden_cross = ((moving_average_20 > moving_average_50)
     & (moving_average_20.shift(1) <= moving_average_50.shift(1)))
 
-plt.scatter(close_data[golden_cross].index,
+    plt.scatter(close_data[golden_cross].index,
             close_data[golden_cross],
             color="green",
             s=120,
             label="Golden Cross", 
             marker = "^")
 
-#death cross
-death_cross = (
-    (moving_average_20 < moving_average_50)
+    #death cross
+    death_cross = ((moving_average_20 < moving_average_50)
     & (moving_average_20.shift(1) >= moving_average_50.shift(1)))
 
-plt.scatter(close_data[death_cross].index,
+    plt.scatter(close_data[death_cross].index,
             close_data[death_cross],
             color="red",
             s=120,
             label="Death Cross", 
-            marker = "v")
+            marker = "v")    
+    
 
-plt.title("VOO Price Analysis")
-plt.xlabel("Date")
-plt.ylabel("Price (USD)")
-plt.grid()
-plt.legend()
-plt.show()
+    plt.title(f"{ticker} Price Analysis")
+    plt.xlabel("Date")
+    plt.ylabel("Price (USD)")
+    plt.grid()
+    plt.legend()
+    plt.show()
 
+def main(ticker):
+    close_data, daily_return = download_data(ticker)
+
+    metrics, moving_average_20, moving_average_50, daily_drawdown = calculate_metrics(close_data, daily_return)
+        
+    print_metrics(metrics)
+
+    plot_chart(close_data, moving_average_20, moving_average_50, ticker)
+
+if __name__ == "__main__":
+    ticker = input("Enter ETF ticker: ").upper()
+    main(ticker)
