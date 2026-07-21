@@ -117,11 +117,25 @@ def main(ticker):
     close_data, daily_return = download_data(ticker)
 
     metrics, moving_average_20, moving_average_50, daily_drawdown = calculate_metrics(close_data, daily_return)
-        
+    
+    print(f"\n========== {ticker} ==========")
     print_metrics(metrics)
 
-    plot_chart(close_data, moving_average_20, moving_average_50, ticker)
+    #plot_chart(close_data, moving_average_20, moving_average_50, ticker)
+
+def get_tickers():
+    ticker_list = []
+    while True:
+        ticker = input("Please enter ETF ticker(Press enter to finish): ")
+        if ticker == "":
+            break
+        ticker = ticker.upper()
+        ticker_list.append(ticker)
+    
+    return ticker_list 
 
 if __name__ == "__main__":
-    ticker = input("Enter ETF ticker: ").upper()
-    main(ticker)
+    tickers = get_tickers()
+    
+    for ticker in tickers:
+        main(ticker)
