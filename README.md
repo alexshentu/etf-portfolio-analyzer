@@ -46,3 +46,9 @@ python src/main.py
 - Calculate Sharpe Ratio
 - Generate PDF reports
 - Add a graphical user interface (GUI)
+
+## Known Issues
+
+On some Windows 11 systems with Smart App Control enabled,
+Matplotlib may be blocked by Windows Code Integrity.
+As a workaround, the matplotlib import is deferred until `plot_chart()` is called.

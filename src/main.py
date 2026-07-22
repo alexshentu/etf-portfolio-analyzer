@@ -1,6 +1,7 @@
 import yfinance as yf
 
 
+
 #download info 
 def download_data(ticker):
     data = yf.download(ticker, period="1y")
@@ -69,6 +70,7 @@ def print_metrics(metrics):
 
 def plot_chart(close_data, moving_average_20, moving_average_50, ticker):
     import matplotlib.pyplot as plt
+    
     #plot
     close_data.plot(label = "Close Price", 
                 color = "black", 
