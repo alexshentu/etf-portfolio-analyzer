@@ -1,5 +1,5 @@
 import yfinance as yf
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 #download info 
 def download_data(ticker):
@@ -122,6 +122,7 @@ def main(ticker):
     print_metrics(metrics)
 
     #plot_chart(close_data, moving_average_20, moving_average_50, ticker)
+    return metrics
 
 def get_tickers():
     ticker_list = []
@@ -134,8 +135,25 @@ def get_tickers():
     
     return ticker_list 
 
+def find_highest(results, desire_metric):
+    highest_name = None
+    highest_metric = None
+    for key, value in results.items():
+        if highest_metric is None:
+            highest_metric = value[desire_metric]
+            highest_name = key
+        elif value[desire_metric] > highest_metric:
+            highest_metric = value[desire_metric]
+            highest_name = key
+    return highest_name, highest_metric
+
 if __name__ == "__main__":
+    results = {}
     tickers = get_tickers()
     
     for ticker in tickers:
-        main(ticker)
+        results[ticker] = main(ticker)
+
+highest_name, highest_return = find_highest(results, "total_return")
+
+print(f"Highest Return: {highest_name} ({highest_return:.2%})")
