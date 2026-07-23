@@ -1,4 +1,5 @@
 import yfinance as yf
+import matplotlib.pyplot as plt
 
 
 
@@ -69,7 +70,7 @@ def print_metrics(metrics):
             print(f"{key.replace('_', ' ').title()}: {value}")
 
 def plot_chart(close_data, moving_average_20, moving_average_50, ticker):
-    import matplotlib.pyplot as plt
+    
     
     #plot
     close_data.plot(label = "Close Price", 
@@ -116,17 +117,6 @@ def plot_chart(close_data, moving_average_20, moving_average_50, ticker):
     plt.legend()
     plt.show()
 
-def main(ticker):
-    close_data, daily_return = download_data(ticker)
-
-    metrics, moving_average_20, moving_average_50, daily_drawdown = calculate_metrics(close_data, daily_return)
-    
-    print(f"\n========== {ticker} ==========")
-    print_metrics(metrics)
-
-    #plot_chart(close_data, moving_average_20, moving_average_50, ticker)
-    return metrics
-
 def get_tickers():
     ticker_list = []
     while True:
@@ -138,17 +128,39 @@ def get_tickers():
     
     return ticker_list 
 
-def find_highest(results, desire_metric):
-    highest_name = None
-    highest_metric = None
+
+def find_metric(results, desire_metric, mode):
+    if mode not in ("max", "min"):
+        raise ValueError(f"Invalid mode: {mode}. Mode must be 'max' or 'min'.")
+    best_name = None
+    best_metric = None
     for key, value in results.items():
-        if highest_metric is None:
-            highest_metric = value[desire_metric]
-            highest_name = key
-        elif value[desire_metric] > highest_metric:
-            highest_metric = value[desire_metric]
-            highest_name = key
-    return highest_name, highest_metric
+        if best_metric is None:
+            best_metric = value[desire_metric]
+            best_name = key
+
+        elif mode == "min" and value[desire_metric] < best_metric:
+            best_metric = value[desire_metric]
+            best_name = key
+
+        elif mode == "max" and value[desire_metric] > best_metric:
+            best_metric = value[desire_metric]
+            best_name = key
+        
+    return best_name, best_metric
+
+
+def main(ticker):
+    close_data, daily_return = download_data(ticker)
+
+    metrics, moving_average_20, moving_average_50, daily_drawdown = calculate_metrics(close_data, daily_return)
+    
+    print(f"\n========== {ticker} ==========")
+    print_metrics(metrics)
+
+    #plot_chart(close_data, moving_average_20, moving_average_50, ticker)
+    return metrics
+
 
 if __name__ == "__main__":
     results = {}
@@ -157,6 +169,8 @@ if __name__ == "__main__":
     for ticker in tickers:
         results[ticker] = main(ticker)
 
-highest_name, highest_return = find_highest(results, "total_return")
-
-print(f"Highest Return: {highest_name} ({highest_return:.2%})")
+    print("\n========== ETF Comparison ==========")
+    best_return_ticker, best_return = find_metric(results, "total_return", "max")
+    print(f"Highest Return: {best_return_ticker} ({best_return:.2%})")
+    best_volatility_ticker, best_volatility = find_metric(results, "annual_volatility", "min")
+    print(f"Lowest Annual Volatility: "f"{best_volatility_ticker} ({best_volatility:.2%})")
