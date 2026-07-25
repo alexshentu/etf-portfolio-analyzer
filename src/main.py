@@ -149,6 +149,18 @@ def find_metric(results, desire_metric, mode):
         
     return best_name, best_metric
 
+def rank_metrics(results, desire_metric):
+    ranking = sorted(results.items(), key=lambda item: item[1][desire_metric], reverse=True,)
+    return ranking
+
+def print_rank(ranking, desire_metric):
+    print(f"\n========== {desire_metric} Ranking ==========")
+    for index, (ticker, metrics) in enumerate(ranking, start=1):
+        if "return" in desire_metric or "volatility" in desire_metric or "drawdown" in desire_metric:
+            print (f"{index}. {ticker}: {metrics[desire_metric]:.2%}")
+        elif "ratio" in desire_metric:
+            print (f"{index}. {ticker}: {metrics[desire_metric]:.2f}")
+
 
 def main(ticker):
     close_data, daily_return = download_data(ticker)
@@ -174,3 +186,5 @@ if __name__ == "__main__":
     print(f"Highest Return: {best_return_ticker} ({best_return:.2%})")
     best_volatility_ticker, best_volatility = find_metric(results, "annual_volatility", "min")
     print(f"Lowest Annual Volatility: "f"{best_volatility_ticker} ({best_volatility:.2%})")
+    ranking = rank_metrics(results, "maximum_drawdown")
+    print_rank(ranking, "maximum_drawdown")
