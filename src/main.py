@@ -36,8 +36,9 @@ def calculate_metrics(close_data, daily_return):
     metrics["annual_volatility"] = annual_volatility
 
     #total return 
-    growth_factor = daily_return + 1
-    total_return = growth_factor.cumprod().iloc[-1] - 1
+    initial_price = close_data.iloc[0]
+    final_price = close_data.iloc[-1]
+    total_return = (final_price / initial_price) - 1
 
     metrics["total_return"] = total_return
 
@@ -57,6 +58,11 @@ def calculate_metrics(close_data, daily_return):
     metrics["20_day_moving_average"] = moving_average_20.iloc[-1]
     metrics["50_day_moving_average"] = moving_average_50.iloc[-1]
 
+    #CAGR
+    years = 1
+    CAGR = (1 + total_return) ** (1 / years) - 1
+    metrics["cagr"] = CAGR
+
     return metrics, moving_average_20, moving_average_50, daily_drawdown
     # Returned for future drawdown visualization
 
@@ -64,7 +70,7 @@ def print_metrics(metrics):
     for key, value in metrics.items():
         if "day" in key:
             print(f"{key.replace('_', ' ').title()}: {value}")
-        elif "return" in key or "volatility" in key or "drawdown" in key:
+        elif "return" in key or "volatility" in key or "drawdown" in key or "cagr" in key:
             print(f"{key.replace('_', ' ').title()}: {value:.2%}")
         else:
             print(f"{key.replace('_', ' ').title()}: {value}")
@@ -160,6 +166,7 @@ def print_rank(ranking, desire_metric):
             print (f"{index}. {ticker}: {metrics[desire_metric]:.2%}")
         elif "ratio" in desire_metric:
             print (f"{index}. {ticker}: {metrics[desire_metric]:.2f}")
+
 
 
 def main(ticker):
