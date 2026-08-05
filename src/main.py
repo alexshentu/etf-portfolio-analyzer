@@ -60,11 +60,22 @@ def calculate_metrics(close_data, daily_return):
 
     #CAGR
     years = 1
-    CAGR = (1 + total_return) ** (1 / years) - 1
-    metrics["cagr"] = CAGR
+    cagr = (1 + total_return) ** (1 / years) - 1
+    metrics["cagr"] = cagr
+
+    #sharpe
+    sharpe = calculate_sharpe(cagr, annual_volatility)
+    metrics["sharpe_ratio"] = sharpe
+
 
     return metrics, moving_average_20, moving_average_50, daily_drawdown
     # Returned for future drawdown visualization
+
+def calculate_sharpe(cagr, annual_volatility, risk_free_rate=0):
+    if annual_volatility == 0:
+        raise ValueError("Annual volatility cannot be zero.")
+    sharpe = (cagr - risk_free_rate) / annual_volatility
+    return sharpe
 
 def print_metrics(metrics):
     for key, value in metrics.items():
@@ -72,6 +83,8 @@ def print_metrics(metrics):
             print(f"{key.replace('_', ' ').title()}: {value}")
         elif "return" in key or "volatility" in key or "drawdown" in key or "cagr" in key:
             print(f"{key.replace('_', ' ').title()}: {value:.2%}")
+        elif "ratio" in key:
+            print(f"{key.replace('_', ' ').title()}: {value:.2f}")
         else:
             print(f"{key.replace('_', ' ').title()}: {value}")
 
