@@ -77,16 +77,33 @@ def calculate_sharpe(cagr, annual_volatility, risk_free_rate=0):
     sharpe = (cagr - risk_free_rate) / annual_volatility
     return sharpe
 
+metrics_format = {"best_day" : "date", 
+                  "best_return" : "percent", 
+                  "worst_day" : "date",
+                  "maximum_drawdown_day" : "date",
+                  "maximum_drawdown" : "percent",
+                  "worst_return" : "percent",
+                  "daily_volatility" : "percent",
+                  "annual_volatility" : "percent",
+                  "total_return" : "percent",
+                  "cagr" : "percent",
+                  "20_day_moving_average" : "number",
+                  "50_day_moving_average" : "number",
+                  "sharpe_ratio" : "number"}
+
+
 def print_metrics(metrics):
     for key, value in metrics.items():
-        if "day" in key:
+        format_type = metrics_format.get(key)
+        if format_type == "date":
             print(f"{key.replace('_', ' ').title()}: {value}")
-        elif "return" in key or "volatility" in key or "drawdown" in key or "cagr" in key:
+        elif format_type == "percent":
             print(f"{key.replace('_', ' ').title()}: {value:.2%}")
-        elif "ratio" in key:
+        elif format_type == "number":
             print(f"{key.replace('_', ' ').title()}: {value:.2f}")
         else:
             print(f"{key.replace('_', ' ').title()}: {value}")
+
 
 def plot_chart(close_data, moving_average_20, moving_average_50, ticker):
     
@@ -174,11 +191,16 @@ def rank_metrics(results, desire_metric):
 
 def print_rank(ranking, desire_metric):
     print(f"\n========== {desire_metric} Ranking ==========")
+    format_type = metrics_format.get(desire_metric)
     for index, (ticker, metrics) in enumerate(ranking, start=1):
-        if "return" in desire_metric or "volatility" in desire_metric or "drawdown" in desire_metric:
+        if format_type == "date":
+            print (f"{index}. {ticker}: {metrics[desire_metric]}")
+        elif format_type == "percent":
             print (f"{index}. {ticker}: {metrics[desire_metric]:.2%}")
-        elif "ratio" in desire_metric:
+        elif format_type == "number":
             print (f"{index}. {ticker}: {metrics[desire_metric]:.2f}")
+        else:
+            print (f"{index}. {ticker}: {metrics[desire_metric]}")
 
 
 
@@ -206,5 +228,5 @@ if __name__ == "__main__":
     print(f"Highest Return: {best_return_ticker} ({best_return:.2%})")
     best_volatility_ticker, best_volatility = find_metric(results, "annual_volatility", "min")
     print(f"Lowest Annual Volatility: "f"{best_volatility_ticker} ({best_volatility:.2%})")
-    ranking = rank_metrics(results, "maximum_drawdown")
-    print_rank(ranking, "maximum_drawdown")
+    ranking = rank_metrics(results, "sharpe_ratio")
+    print_rank(ranking, "sharpe_ratio")
