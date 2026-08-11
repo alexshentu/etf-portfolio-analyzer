@@ -4,15 +4,15 @@ import matplotlib.pyplot as plt
 
 
 #download info 
-def download_data(ticker):
-    data = yf.download(ticker, period="1y")
+def download_data(ticker, period):
+    data = yf.download(ticker, period=period)
     close_data = data["Close"][ticker]
     daily_return = close_data.pct_change()
     return close_data, daily_return
 
 
 
-def calculate_metrics(close_data, daily_return):
+def calculate_metrics(close_data, daily_return, period):
     metrics = {}
 
     #best/worst day
@@ -59,7 +59,7 @@ def calculate_metrics(close_data, daily_return):
     metrics["50_day_moving_average"] = moving_average_50.iloc[-1]
 
     #CAGR
-    years = 1
+    years = int(period[:-1])
     cagr = (1 + total_return) ** (1 / years) - 1
     metrics["cagr"] = cagr
 
@@ -165,6 +165,7 @@ def get_tickers():
     return ticker_list 
 
 
+
 def find_metric(results, desire_metric, mode):
     if mode not in ("max", "min"):
         raise ValueError(f"Invalid mode: {mode}. Mode must be 'max' or 'min'.")
@@ -204,10 +205,10 @@ def print_rank(ranking, desire_metric):
 
 
 
-def main(ticker):
-    close_data, daily_return = download_data(ticker)
+def main(ticker, period):
+    close_data, daily_return = download_data(ticker, period)
 
-    metrics, moving_average_20, moving_average_50, daily_drawdown = calculate_metrics(close_data, daily_return)
+    metrics, moving_average_20, moving_average_50, daily_drawdown = calculate_metrics(close_data, daily_return, period)
     
     print(f"\n========== {ticker} ==========")
     print_metrics(metrics)
@@ -219,9 +220,12 @@ def main(ticker):
 if __name__ == "__main__":
     results = {}
     tickers = get_tickers()
+    period = input("Enter analysis period (1y/3y/5y/10y): ").lower()
+    if period not in ("1y", "3y", "5y", "10y"):
+        raise ValueError("Invalid analysis period.")
     
     for ticker in tickers:
-        results[ticker] = main(ticker)
+        results[ticker] = main(ticker, period)
 
     print("\n========== ETF Comparison ==========")
     best_return_ticker, best_return = find_metric(results, "total_return", "max")
