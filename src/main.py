@@ -153,6 +153,17 @@ def plot_chart(close_data, moving_average_20, moving_average_50, ticker):
     plt.legend()
     plt.show()
 
+def plot_comparison(normalized_results):
+    for ticker, normalized_data in normalized_results.items():
+        normalized_data.plot(label = ticker, linewidth = 1)
+    
+    plt.title("ETFs Comparison")
+    plt.xlabel("Date")
+    plt.ylabel("Normalized Value")
+    plt.grid()
+    plt.legend()
+    plt.show()
+
 def get_tickers():
     ticker_list = []
     while True:
@@ -209,23 +220,28 @@ def main(ticker, period):
     close_data, daily_return = download_data(ticker, period)
 
     metrics, moving_average_20, moving_average_50, daily_drawdown = calculate_metrics(close_data, daily_return, period)
+
+    
+    normalized_data= close_data / close_data.iloc[0]
     
     print(f"\n========== {ticker} ==========")
     print_metrics(metrics)
 
     #plot_chart(close_data, moving_average_20, moving_average_50, ticker)
-    return metrics
+    return metrics, normalized_data
+
 
 
 if __name__ == "__main__":
     results = {}
+    normalized_results = {}
     tickers = get_tickers()
     period = input("Enter analysis period (1y/3y/5y/10y): ").lower()
     if period not in ("1y", "3y", "5y", "10y"):
         raise ValueError("Invalid analysis period.")
     
-    for ticker in tickers:
-        results[ticker] = main(ticker, period)
+    for ticker in tickers: 
+        results[ticker], normalized_results [ticker]= main(ticker, period)
 
     print("\n========== ETF Comparison ==========")
     best_return_ticker, best_return = find_metric(results, "total_return", "max")
@@ -234,3 +250,4 @@ if __name__ == "__main__":
     print(f"Lowest Annual Volatility: "f"{best_volatility_ticker} ({best_volatility:.2%})")
     ranking = rank_metrics(results, "sharpe_ratio")
     print_rank(ranking, "sharpe_ratio")
+    plot_comparison(normalized_results)
