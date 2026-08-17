@@ -231,7 +231,20 @@ def main(ticker, period):
     #plot_chart(close_data, moving_average_20, moving_average_50, ticker)
     return metrics, cumulative_return
 
+def calculate_excess_returns(results, benchmark):
+    benchmark_return = results[benchmark]["total_return"]
+    excess_return = {}
+    for ticker, metrics in results.items():
+        excess_return[ticker] = metrics["total_return"] - benchmark_return
+    return excess_return
 
+def print_excess_returns(excess_returns, benchmark):
+    ranking = sorted(excess_returns.items(), key=lambda item: item[1], reverse=True,)
+    print(f"\n========== Excess Return vs {benchmark} ==========")
+    for index, (ticker, returns) in enumerate(ranking, start=1):
+        print (f"{index}. {ticker}: {returns:.2%}")
+
+    
 
 if __name__ == "__main__":
     results = {}
@@ -240,9 +253,14 @@ if __name__ == "__main__":
     period = input("Enter analysis period (1y/3y/5y/10y): ").lower()
     if period not in ("1y", "3y", "5y", "10y"):
         raise ValueError("Invalid analysis period.")
-    
+    benchmark = input("Enter benchmark ETF: ").upper()
+    if benchmark not in tickers:
+        raise ValueError("Benchmark must be one of the selected ETFs.")
     for ticker in tickers: 
         results[ticker], cumulative_results[ticker]= main(ticker, period)
+
+    excess_returns = calculate_excess_returns(results, benchmark)
+    print_excess_returns(excess_returns, benchmark)
 
     print("\n========== ETF Comparison ==========")
     best_return_ticker, best_return = find_metric(results, "total_return", "max")
