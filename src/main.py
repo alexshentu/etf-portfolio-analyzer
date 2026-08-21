@@ -231,8 +231,13 @@ def main(ticker, period):
     #plot_chart(close_data, moving_average_20, moving_average_50, ticker)
     return metrics, cumulative_return
 
-def calculate_excess_returns(results, benchmark):
-    benchmark_return = results[benchmark]["total_return"]
+def calculate_excess_returns(results, benchmark, period):
+    if benchmark in results:
+        benchmark_return = results[benchmark]["total_return"]
+    else:
+        benchmark_close_data, benchmark_daily_return = download_data(benchmark, period)
+        benchmark_metrics, _, _, _ = calculate_metrics(benchmark_close_data, benchmark_daily_return, period)
+        benchmark_return = benchmark_metrics["total_return"]
     excess_return = {}
     for ticker, metrics in results.items():
         excess_return[ticker] = metrics["total_return"] - benchmark_return
@@ -254,12 +259,9 @@ if __name__ == "__main__":
     if period not in ("1y", "3y", "5y", "10y"):
         raise ValueError("Invalid analysis period.")
     benchmark = input("Enter benchmark ETF: ").upper()
-    if benchmark not in tickers:
-        raise ValueError("Benchmark must be one of the selected ETFs.")
     for ticker in tickers: 
         results[ticker], cumulative_results[ticker]= main(ticker, period)
-
-    excess_returns = calculate_excess_returns(results, benchmark)
+    excess_returns = calculate_excess_returns(results, benchmark, period)
     print_excess_returns(excess_returns, benchmark)
 
     print("\n========== ETF Comparison ==========")
