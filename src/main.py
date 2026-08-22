@@ -1,5 +1,6 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
+import pandas as pd
 from matplotlib.ticker import PercentFormatter
 
 
@@ -249,7 +250,34 @@ def print_excess_returns(excess_returns, benchmark):
     for index, (ticker, returns) in enumerate(ranking, start=1):
         print (f"{index}. {ticker}: {returns:.2%}")
 
-    
+column_names = {
+    "total_return": "Total Return",
+    "cagr": "CAGR",
+    "annual_volatility": "Annual Volatility",
+    "maximum_drawdown": "Maximum Drawdown",
+    "sharpe_ratio": "Sharpe Ratio"
+}
+
+def create_summary_table(results):
+    df = pd.DataFrame(results).T
+    columns = ["total_return", "cagr", "annual_volatility", "maximum_drawdown", "sharpe_ratio"]
+    summary = df[columns]
+    summary.index.name = "ticker"
+    return summary
+
+def print_summary_table(summary):
+    display_summary = summary.copy()
+    for column in summary.columns:
+        format_type = metrics_format.get(column)
+        if format_type == "percent":
+            display_summary[column] = display_summary[column].map(lambda x: f"{x:.2%}")
+        elif format_type == "number":
+            display_summary[column] = display_summary[column].map(lambda x: f"{x:.2f}")
+    display_summary = display_summary.rename(columns=column_names)
+    print(display_summary)
+
+def export_summary(summary):
+    summary.to_csv("etf_summary.csv")
 
 if __name__ == "__main__":
     results = {}
@@ -271,4 +299,7 @@ if __name__ == "__main__":
     print(f"Lowest Annual Volatility: "f"{best_volatility_ticker} ({best_volatility:.2%})")
     ranking = rank_metrics(results, "sharpe_ratio")
     print_rank(ranking, "sharpe_ratio")
+    summary = create_summary_table(results)
+    print_summary_table(summary)
     plot_comparison(cumulative_results)
+    export_summary(summary)
